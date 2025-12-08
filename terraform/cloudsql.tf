@@ -46,6 +46,8 @@ resource "google_sql_database_instance" "postgres" {
   lifecycle {
     prevent_destroy = false # Set to true in production
   }
+
+  depends_on = [google_service_networking_connection.private_vpc_connection]
 }
 
 # Private VPC connection for Cloud SQL
@@ -62,6 +64,9 @@ resource "google_service_networking_connection" "private_vpc_connection" {
   network                 = google_compute_network.vpc.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
+
+  # Deletion is managed by Terraform's dependency graph
+  # Cloud SQL deletion triggers peering connection release
 }
 
 # Create database

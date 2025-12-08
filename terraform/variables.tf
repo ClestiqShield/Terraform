@@ -27,3 +27,8 @@ variable "db_user" {
   description = "Database user"
   type        = string
 }
+
+variable "zone" {
+  description = "GCP Zone for zonal resources (e.g., us-east1-b)"
+  type        = string
+}

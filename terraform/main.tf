@@ -28,6 +28,13 @@ resource "google_project_service" "secretmanager" {
   disable_on_destroy = false
 }
 
+resource "google_project_service" "container" {
+  project = var.project_id
+  service = "container.googleapis.com"
+
+  disable_on_destroy = false
+}
+
 # Store database password in Secret Manager
 resource "google_secret_manager_secret" "db_password" {
   secret_id = "${var.db_instance_name}-password"
