@@ -1,4 +1,4 @@
-name: Terraform CI
+name: Terraform CI | Security Scans
 
 on:
   pull_request:
