@@ -32,3 +32,14 @@ variable "zone" {
   description = "GCP Zone for zonal resources (e.g., us-east1-b)"
   type        = string
 }
+
+variable "datadog_api_key" {
+  description = "Datadog API Key"
+  type        = string
+  sensitive   = true
+}
+
+variable "datadog_site" {
+  description = "Datadog Site (e.g., us5.datadoghq.com)"
+  type        = string
+}

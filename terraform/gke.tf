@@ -1,7 +1,7 @@
 # GKE Cluster - Zonal for predictable node count
 resource "google_container_cluster" "primary" {
   name     = "${var.application_name}-gke"
-  location = var.zone 
+  location = var.zone
   project  = var.project_id
 
   deletion_protection = false
@@ -20,7 +20,7 @@ resource "google_container_cluster" "primary" {
   node_config {
     disk_size_gb = 50
     disk_type    = "pd-standard"
-    machine_type = "e2-medium"
+    machine_type = "e2-standard-4"
   }
 
   depends_on = [
@@ -31,13 +31,13 @@ resource "google_container_cluster" "primary" {
 # Managed node pool with proper autoscaling
 resource "google_container_node_pool" "primary_nodes" {
   name     = "${var.application_name}-node-pool"
-  location = var.zone 
+  location = var.zone
   cluster  = google_container_cluster.primary.name
   project  = var.project_id
 
   initial_node_count = 1
   autoscaling {
-    min_node_count = 0  # Scale to zero when idle (cost savings)
+    min_node_count = 1
     max_node_count = 3
   }
 
@@ -48,7 +48,7 @@ resource "google_container_node_pool" "primary_nodes" {
 
   node_config {
     preemptible  = true
-    machine_type = "e2-medium"
+    machine_type = "e2-standard-4"
 
     # Use HDD to save SSD quota
     disk_size_gb = 50

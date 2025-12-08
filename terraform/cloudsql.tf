@@ -17,7 +17,7 @@ resource "google_sql_database_instance" "postgres" {
   deletion_protection = false # Set to true in production
 
   settings {
-    edition           = "ENTERPRISE" # Use ENTERPRISE edition for db-f1-micro support
+    edition           = "ENTERPRISE"  # Use ENTERPRISE edition for db-f1-micro support
     tier              = "db-f1-micro" # Cheapest sandbox tier: shared core, 0.6 GB RAM
     availability_type = "ZONAL"       # Single zone
     disk_type         = "PD_SSD"
@@ -64,9 +64,9 @@ resource "google_service_networking_connection" "private_vpc_connection" {
   network                 = google_compute_network.vpc.id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
-
-  # Deletion is managed by Terraform's dependency graph
-  # Cloud SQL deletion triggers peering connection release
+  deletion_policy         = "ABANDON"
+  # ABANDON: Terraform ignores deletion - GCP auto-removes peering when Cloud SQL is deleted
+  # This prevents the "Producer services still using this connection" error
 }
 
 # Create database
