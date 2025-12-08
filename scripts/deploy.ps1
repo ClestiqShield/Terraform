@@ -60,11 +60,11 @@ Write-Host "[SUCCESS] Infrastructure deployment complete!" -ForegroundColor Gree
 Write-Host ""
 Write-Host "Deployment Summary:" -ForegroundColor Cyan
 Write-Host "==================" -ForegroundColor Cyan
-Write-Host "Database password:"
-terraform output -raw db_password
+Write-Host "Database url: " terraform output -raw database_url
 Write-Host ""
-Write-Host "Database url:"
-terraform output -raw database_url
+Write-Host "kubernetes_cluster_endpoint: " terraform output -raw kubernetes_cluster_endpoint
+Write-Host ""
+Write-Host "gke_connect_command: " terraform output -raw gke_connect_command
 Write-Host ""
 
 # Return to project root directory

@@ -8,6 +8,9 @@ metadata:
     component: otel-collector-conf
 data:
   otel-collector-config: |
+    extensions:
+      health_check:
+        endpoint: 0.0.0.0:13133
     receivers:
       otlp:
         protocols:
@@ -36,6 +39,7 @@ data:
           key: ${env:DD_API_KEY}
 
     service:
+      extensions: [health_check]
       pipelines:
         traces:
           receivers: [otlp]

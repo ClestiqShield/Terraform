@@ -31,7 +31,7 @@ spec:
             httpGet:
               path: /health
               port: 8000
-            initialDelaySeconds: 15
+            initialDelaySeconds: 30
             periodSeconds: 20
             timeoutSeconds: 5
             failureThreshold: 3
@@ -53,14 +53,14 @@ spec:
                 secretKeyRef:
                   name: db-secrets
                   key: database-url
-            - name: OTEL_SERVICE_NAME
-              value: "clestiq-shield-gateway"
-            - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: "http://$(HOST_IP):4317"
             - name: HOST_IP
               valueFrom:
                 fieldRef:
                   fieldPath: status.hostIP
+            - name: OTEL_SERVICE_NAME
+              value: "clestiq-shield-gateway"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://$(HOST_IP):4317"
 ---
 apiVersion: v1
 kind: Service
