@@ -45,6 +45,10 @@ data:
           receivers: [otlp]
           processors: [memory_limiter, batch, resource]
           exporters: [debug, datadog]
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, batch, resource]
+          exporters: [debug, datadog]
         metrics:
           receivers: [otlp]
           processors: [memory_limiter, batch, resource]

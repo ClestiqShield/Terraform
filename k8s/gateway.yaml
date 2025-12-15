@@ -44,6 +44,8 @@ spec:
             timeoutSeconds: 3
             failureThreshold: 3
           env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
             - name: SENTINEL_SERVICE_URL
               value: "http://sentinel:8001"
             - name: GUARDIAN_URL
@@ -60,7 +62,7 @@ spec:
             - name: OTEL_SERVICE_NAME
               value: "clestiq-shield-gateway"
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: "http://$(HOST_IP):4317"
+              value: "http://$(HOST_IP):4318"
 ---
 apiVersion: v1
 kind: Service

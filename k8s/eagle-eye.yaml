@@ -44,6 +44,8 @@ spec:
             timeoutSeconds: 5
             failureThreshold: 3
           env:
+            - name: PYTHONUNBUFFERED
+              value: "1"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -63,7 +65,7 @@ spec:
             - name: OTEL_SERVICE_NAME
               value: "clestiq-shield-eagle-eye"
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: "http://$(HOST_IP):4317"
+              value: "http://$(HOST_IP):4318"
             - name: TELEMETRY_ENABLED
               value: "true"
 ---
