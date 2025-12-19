@@ -48,6 +48,14 @@ rules:
     verbs:
       - get
   - apiGroups:
+      - ""
+    resources:
+      - nodes/stats
+      - nodes/metrics
+      - nodes/proxy
+    verbs:
+      - get
+  - apiGroups:
       - apps
     resources:
       - deployments
@@ -143,6 +151,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
+            - name: DD_KUBELET_TLS_VERIFY
+              value: "false"
 
             # APM Configuration
             - name: DD_APM_ENABLED
@@ -168,11 +178,11 @@ spec:
             - name: DD_PROCESS_AGENT_ENABLED
               value: "true"
             - name: DD_SYSTEM_PROBE_ENABLED
-              value: "true"
+              value: "false"
 
-            # Universal Service Monitoring
+            # Universal Service Monitoring (DISABLED - GKE restrictions)
             - name: DD_SYSTEM_PROBE_SERVICE_MONITORING_ENABLED
-              value: "true"
+              value: "false"
 
             # Container Image Collection
             - name: DD_CONTAINER_IMAGE_ENABLED
@@ -267,52 +277,8 @@ spec:
             successThreshold: 1
             failureThreshold: 6
 
-        # System Probe Container (for Universal Service Monitoring)
-        - name: system-probe
-          image: gcr.io/datadoghq/agent:7
-          imagePullPolicy: Always
-          securityContext:
-            privileged: true
-            capabilities:
-              add:
-                - SYS_ADMIN
-                - SYS_RESOURCE
-                - SYS_PTRACE
-                - NET_ADMIN
-                - NET_BROADCAST
-                - NET_RAW
-                - IPC_LOCK
-                - CHOWN
-          command:
-            - /opt/datadog-agent/embedded/bin/system-probe
-          env:
-            - name: DD_SYSTEM_PROBE_ENABLED
-              value: "true"
-            - name: DD_SYSPROBE_SOCKET
-              value: "/var/run/datadog/sysprobe.sock"
-            - name: DD_SYSTEM_PROBE_SERVICE_MONITORING_ENABLED
-              value: "true"
-          resources:
-            requests:
-              cpu: 100m
-              memory: 128Mi
-            limits:
-              cpu: 200m
-              memory: 256Mi
-          volumeMounts:
-            - name: procdir
-              mountPath: /host/proc
-              readOnly: true
-            - name: cgroups
-              mountPath: /host/sys/fs/cgroup
-              readOnly: true
-            - name: debugfs
-              mountPath: /sys/kernel/debug
-            - name: systemprobe-socket
-              mountPath: /var/run/datadog
-            - name: modules
-              mountPath: /lib/modules
-              readOnly: true
+        # System Probe Container - DISABLED due to GKE memlock restrictions
+        # Re-enable when proper node configuration is in place
 
       volumes:
         - name: dockersocket
