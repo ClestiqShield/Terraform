@@ -220,6 +220,10 @@ spec:
             - name: DD_SYSPROBE_SOCKET
               value: "/var/run/datadog/sysprobe.sock"
 
+            # Cluster Agent Integration
+            - name: DD_CLUSTER_AGENT_ENABLED
+              value: "false"
+
           volumeMounts:
             - name: dockersocket
               mountPath: /var/run/docker.sock
@@ -268,6 +272,7 @@ spec:
           image: gcr.io/datadoghq/agent:7
           imagePullPolicy: Always
           securityContext:
+            privileged: true
             capabilities:
               add:
                 - SYS_ADMIN

@@ -159,6 +159,22 @@ spec:
       app.kubernetes.io/name: kube-state-metrics
   template:
     metadata:
+      annotations:
+        ad.datadoghq.com/kube-state-metrics.check_names: '["kubernetes_state_core"]'
+        ad.datadoghq.com/kube-state-metrics.init_configs: "[{}]"
+        ad.datadoghq.com/kube-state-metrics.instances: |
+          [
+            {
+              "collectors": [
+                {
+                  "kind": "service",
+                  "name": "kube-state-metrics",
+                  "port": 8080
+                }
+              ],
+              "telemetry": true
+            }
+          ]
       labels:
         app.kubernetes.io/name: kube-state-metrics
         app.kubernetes.io/version: v2.9.2

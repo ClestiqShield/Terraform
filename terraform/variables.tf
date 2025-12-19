@@ -93,6 +93,12 @@ variable "gke_services_cidr" {
 }
 
 # Secrets
+variable "datadog_app_key" {
+  description = "Datadog Application Key"
+  type        = string
+  sensitive   = true
+}
+
 variable "datadog_api_key" {
   description = "Datadog API Key"
   type        = string
