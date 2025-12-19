@@ -38,3 +38,9 @@ output "gateway_static_ip" {
   description = "Static IP Address reserved for the Gateway LoadBalancer"
   value       = google_compute_address.gateway_ip.address
 }
+
+output "datadog_app_key" {
+  description = "Datadog Application Key"
+  value       = var.datadog_app_key
+  sensitive   = true
+}

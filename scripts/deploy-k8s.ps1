@@ -56,21 +56,45 @@ if (!$dbSecretExists) {
     }
 }
 
-$ddSecretExists = kubectl get secret datadog-secrets -n default --ignore-not-found 2>$null
-if (!$ddSecretExists) {
-    Write-Host "[WARN] Secret 'datadog-secrets' not found. Creating from Terraform output..." -ForegroundColor Yellow
+$ddSecretJson = kubectl get secret datadog-secrets -n default -o json --ignore-not-found
+if ($ddSecretJson) {
+    $ddSecret = $ddSecretJson | ConvertFrom-Json
+    $hasToken = $ddSecret.data.'cluster-agent-token'
+    $hasAppKey = $ddSecret.data.'app-key'
+    
+    if (!$hasToken -or !$hasAppKey) {
+        Write-Host "[WARN] datadog-secrets exists but missing keys (token or app-key). Updating..." -ForegroundColor Yellow
+        $regen = $true
+    } else {
+        $regen = $false
+        Write-Host "[OK] datadog-secrets exists and is valid" -ForegroundColor Green
+    }
+} else {
+    $regen = $true
+}
+
+if ($regen) {
+    Write-Host "[INFO] Configuring datadog-secrets..." -ForegroundColor Yellow
     $terraformDir = Join-Path $PSScriptRoot "..\terraform"
     Push-Location $terraformDir
     $ddApiKey = terraform output -raw datadog_api_key 2>$null
+    $ddAppKey = terraform output -raw datadog_app_key 2>$null
     $ddSite = terraform output -raw datadog_site 2>$null
     Pop-Location
     
     if ($ddApiKey -and $ddSite) {
-        kubectl create secret generic datadog-secrets --from-literal=api-key="$ddApiKey" --from-literal=site="$ddSite"
-        Write-Host "[OK] Created datadog-secrets from Terraform output" -ForegroundColor Green
+        # Create or Update secret
+        # We use --dry-run=client -o yaml | kubectl apply -f - to support updating existing secret
+        $secretCmd = "kubectl create secret generic datadog-secrets -n default --from-literal=api-key='$ddApiKey' --from-literal=site='$ddSite' --dry-run=client -o yaml | kubectl apply -f -"
+        Invoke-Expression $secretCmd
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "[OK] Configured datadog-secrets" -ForegroundColor Green
+        } else {
+             Write-Host "[ERROR] Failed to configure datadog-secrets" -ForegroundColor Red
+             exit 1
+        }
     } else {
-        Write-Host "[ERROR] Could not get datadog credentials from Terraform. Create manually:" -ForegroundColor Red
-        Write-Host "kubectl create secret generic datadog-secrets --from-literal=api-key=<YOUR_API_KEY> --from-literal=site=<YOUR_SITE>" -ForegroundColor Yellow
+        Write-Host "[ERROR] Could not get datadog credentials from Terraform. Please check outputs." -ForegroundColor Red
         exit 1
     }
 }
@@ -92,6 +116,21 @@ if (!$eeSecretExists) {
         exit 1
     }
 }
+
+$gcpSecretExists = kubectl get secret gcp-credentials -n default --ignore-not-found 2>$null
+if (!$gcpSecretExists) {
+    Write-Host "[WARN] Secret 'gcp-credentials' not found. Creating from file..." -ForegroundColor Yellow
+    $credFile = Join-Path $PSScriptRoot "..\gcp-credentials.json"
+    
+    if (Test-Path $credFile) {
+        kubectl create secret generic gcp-credentials --from-file=gcp-credentials.json="$credFile"
+        Write-Host "[OK] Created gcp-credentials from file" -ForegroundColor Green
+    } else {
+        Write-Host "[ERROR] gcp-credentials.json not found at $credFile" -ForegroundColor Red
+        exit 1
+    }
+}
+
 
 Write-Host "[OK] All required secrets exist" -ForegroundColor Green
 
