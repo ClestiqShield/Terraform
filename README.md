@@ -34,6 +34,7 @@ graph TD
             subgraph "Infrastructure"
                 Redis[(Redis Cache)]
                 DD["Datadog Agent (DaemonSet)"]
+                KSM["Kube-State-Metrics"]
             end
         end
         
@@ -110,7 +111,7 @@ graph TD
     - `trigger_all_alerts.ps1`: Chaos engineering script to simulate DDoS, Security threats, and Abuse.
     - `load_test.ps1`: Generates standard user/app/key traffic for load validation.
     - `test_rate_limits.ps1`: Specifically validates rate limiting logic.
-- **`k8s/`**
+  - **`k8s/`**
   - Kubernetes manifests for Clestiq Shield services (`gateway`, `eagle-eye`, `sentinel`, `guardian`).
   - Observability configs (`datadog-agent`, `kube-state-metrics`).
   - Infrastructure components (`redis`).
@@ -185,6 +186,28 @@ Generates valid users, apps, and keys to simulate normal (but busy) traffic. Use
 
 ## 📊 Observability (Datadog)
 
+<div align="center">
+
+**All Signals → One Platform**
+
+```mermaid
+graph TD
+    subgraph "Kubernetes Infrastructure"
+        Pods[App Pods] -- Traces & Logs --> DD
+        Pods -- Custom Metrics --> DD
+        KSM[Kube-State-Metrics] -- Cluster State --> DD
+        Nodes[Nodes/Infra] -- System Metrics --> DD
+        DD[Datadog Agent]
+    end
+    
+    DD == "Full Telemetry Export\n(Traces, Logs, Metrics, Profiles)" ==> SaaS[Datadog Cloud Platform]
+    
+    style DD fill:#632CA6,stroke:#fff,stroke-width:2px,color:#fff
+    style SaaS fill:#632CA6,stroke:#fff,stroke-width:4px,color:#fff
+```
+
+</div>
+
 The infrastructure includes a full **Datadog** deployment.
 - **Manifest**: `k8s/datadog-agent.yaml`
 - **Configuration**: The `deploy-k8s.ps1` script automatically pulls `datadog_api_key` and `datadog_app_key` from Terraform outputs.
@@ -194,3 +217,4 @@ The infrastructure includes a full **Datadog** deployment.
 - **Logs**: Container log collection.
 - **Process**: Live process monitoring.
 - **System Probe**: Network performance monitoring.
+- **Kube Stats**: Cluster-level metrics via `kube-state-metrics`.
